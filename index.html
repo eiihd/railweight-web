@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <title>RailWeight | Sistema de Estimación de Masa Ferroviaria</title>
+
+    <!-- Fuentes: Poppins (Indian Type Foundry) y Lato (Lukasz Dziedzic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5.3 y Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Hoja de estilos -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= PANTALLA DE INICIO DE SESIÓN SEGURO ================= -->
+<div class="rw-login-overlay" id="loginOverlay">
+    <div class="rw-login-card">
+        <div class="text-center mb-4">
+            <div class="rw-logo-box mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.6rem;">
+                <i class="bi bi-train-freight-front"></i>
+            </div>
+            <h2 class="fw-bold mb-1" style="font-size: 1.4rem;">RailWeight</h2>
+            <p class="text-muted small mb-0">Control de Carga Ferroviaria • Corredor Interoceánico</p>
+        </div>
+
+        <div id="loginAlert" class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+        <form id="formLogin" autocomplete="off">
+            <div class="mb-3">
+                <label class="rw-form-label" for="loginUsername">Usuario Operativo</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-person-fill text-secondary"></i></span>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="Ej. cvazquez" required maxlength="30">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="rw-form-label" for="loginPassword">Contraseña de Acceso</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-lock-fill text-secondary"></i></span>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required maxlength="40">
+                </div>
+            </div>
+
+            <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold" id="btnSubmitLogin">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center">
+            <small class="text-muted d-block mb-1"><i class="bi bi-shield-lock text-success me-1"></i>Sesión protegida con control de acceso</small>
+            <small class="text-secondary" style="font-size: 0.75rem;">
+                Usuarios de demostración: <strong>cvazquez</strong>, <strong>hlopez</strong> o <strong>adelacruz</strong> | Clave: <strong>Rail2026*</strong>
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- ================= APLICACIÓN PRINCIPAL ================= -->
+<div class="rw-layout" id="appLayout">
+
+    <!-- BARRA LATERAL IZQUIERDA DESPLEGABLE (SIDEBAR) -->
+    <aside class="rw-sidebar" id="sidebar">
+        <div class="rw-sidebar-brand">
+            <div class="rw-logo-box">
+                <i class="bi bi-train-freight-front"></i>
+            </div>
+            <div class="rw-brand-text">
+                <span class="rw-brand-name">RailWeight</span>
+                <span class="rw-brand-tag">Monitoreo de Carga IoT</span>
+            </div>
+        </div>
+
+        <!-- Resumen del operador autenticado -->
+        <div class="rw-sidebar-user" id="sidebarUserCard" title="Ver mi perfil">
+            <div class="rw-avatar" id="sidebarAvatar">CV</div>
+            <div class="rw-user-info">
+                <div class="rw-user-name" id="sidebarUserName">Carlos Vázquez</div>
+                <div class="rw-user-role" id="sidebarUserStation">Estación Macuspana</div>
+            </div>
+        </div>
+
+        <div class="rw-nav-section-label">MENÚ OPERATIVO</div>
+        <ul class="rw-nav-list">
+            <li>
+                <button class="rw-nav-link active" data-tab="tab-calculo">
+                    <i class="bi bi-calculator-fill"></i>
+                    <span>Cálculo y Sensores</span>
+                </button>
+            </li>
+            <li>
+                <button class="rw-nav-link" data-tab="tab-registros">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Historial de Registros</span>
+                </button>
+            </li>
+            <li>
+                <button class="rw-nav-link" data-tab="tab-catalogo">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Catálogo y Contenedor</span>
+                </button>
+            </li>
+            <li>
+                <button class="rw-nav-link" data-tab="tab-conexion">
+                    <i class="bi bi-hdd-network"></i>
+                    <span>Conexión ESP32 y Red</span>
+                </button>
+            </li>
+            <li>
+                <button class="rw-nav-link" data-tab="tab-perfil">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Perfil del Operador</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="rw-sidebar-footer">
+            <div class="rw-status-pill">
+                <span class="rw-dot-online"></span>
+                <span class="rw-status-text">ESP32: En espera de enlace</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="rw-main">
+
+        <!-- Cabecera Superior -->
+        <header class="rw-header">
+            <div class="d-flex align-items-center gap-3">
+                <button class="rw-toggle-btn" id="btnToggleSidebar" title="Mostrar u ocultar menú lateral">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <h1 class="rw-page-title" id="pageTitle">Cálculo de Masa y Monitoreo Longitudinal</h1>
+                    <p class="rw-page-subtitle mb-0" id="pageSubtitle">Estimación volumétrica mediante arreglo lineal de 5 sensores ultrasónicos</p>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="rw-header-badge d-none d-md-flex align-items-center">
+                    <i class="bi bi-geo-alt-fill text-success me-2"></i>
+                    <span>Línea FA • <strong id="headerStationText">Estación Macuspana</strong></span>
+                </div>
+                <button class="btn rw-btn-orange btn-sm px-3 py-2" id="btnQuickSim">
+                    <i class="bi bi-arrow-repeat me-1"></i> Solicitar Lectura
+                </button>
+            </div>
+        </header>
+
+        <!-- Contenido de las Pestañas -->
+        <div class="rw-content">
+
+            <!-- =================================================================
+                 PESTAÑA 1: CÁLCULO Y SENSORES (EN FILA INDIA)
+                 ================================================================= -->
+            <section class="rw-tab-pane active" id="tab-calculo">
+
+                <!-- BANNER DE RESULTADO PRINCIPAL -->
+                <div class="rw-result-banner mb-4">
+                    <div class="row align-items-center g-4">
+                        <div class="col-12 col-lg-5 border-end-lg">
+                            <span class="rw-result-tag">MASA ESTIMADA DEL CONTENEDOR</span>
+                            <div class="d-flex align-items-baseline gap-2 mt-1">
+                                <span class="rw-main-weight" id="resMasaKg">31.50</span>
+                                <span class="rw-main-unit">kg</span>
+                                <span class="rw-sub-weight ms-2" id="resMasaGramos">(31,500 g)</span>
+                            </div>
+                            <p class="rw-result-meta mb-0 mt-1">
+                                Material: <strong id="resMaterialNombre">Arena Seca</strong> • Densidad: <strong id="resDensidadVal">1.50 g/cm³</strong>
+                            </p>
+                        </div>
+
+                        <div class="col-12 col-lg-7">
+                            <div class="row g-3 text-center text-sm-start align-items-center">
+                                <div class="col-6 col-sm-4">
+                                    <div class="rw-mini-metric">
+                                        <span class="rw-mini-label">Volumen Ocupado</span>
+                                        <strong class="rw-mini-val" id="resVolumenCm3">21,000 cm³</strong>
+                                        <small class="text-muted d-block">Cap. total: <span id="resCapMax">37,500 cm³</span></small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-4">
+                                    <div class="rw-mini-metric">
+                                        <span class="rw-mini-label">Nivel de Llenado</span>
+                                        <strong class="rw-mini-val text-success" id="resNivelPct">56.0 %</strong>
+                                        <small class="text-muted d-block">Altura prom: <span id="resAlturaProm">14.0 cm</span></small>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <button class="btn rw-btn-green w-100 py-3 fw-semibold shadow-sm" id="btnGuardarDirecto">
+                                        <i class="bi bi-cloud-check-fill me-2"></i>Guardar en Historial
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILA DE OPERACIÓN: PARÁMETROS + ARREGLO LINEAL DE 5 SENSORES -->
+                <div class="row g-4">
+                    <!-- Selección de Carga -->
+                    <div class="col-12 col-xl-4">
+                        <div class="rw-card h-100">
+                            <div class="rw-card-header">
+                                <h2 class="rw-card-title"><i class="bi bi-sliders me-2 text-success"></i>Parámetros de la Carga</h2>
+                            </div>
+                            <div class="rw-card-body">
+                                <div class="mb-3">
+                                    <label class="rw-form-label" for="selectMaterial">Material a Granel</label>
+                                    <select id="selectMaterial" class="form-select"></select>
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <label class="rw-form-label" for="selectEstadoMaterial">Condición Física</label>
+                                        <select id="selectEstadoMaterial" class="form-select">
+                                            <option value="suelta" selected>Suelto (Vaciado)</option>
+                                            <option value="compactada">Compactado</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="rw-form-label" for="inputDensidad">Densidad Aplicada</label>
+                                        <div class="input-group">
+                                            <input type="text" id="inputDensidad" class="form-control bg-light fw-bold" value="1.50" readonly>
+                                            <span class="input-group-text">g/cm³</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded bg-light border mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold small text-dark"><i class="bi bi-bounding-box me-1 text-success"></i>Vagón a Escala Activo</span>
+                                        <span class="badge bg-secondary" id="badgeCodigoVagon">Vagón #937620</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>Largo: <strong class="text-dark" id="lblLargoActivo">75 cm</strong></span>
+                                        <span>Ancho: <strong class="text-dark" id="lblAnchoActivo">20 cm</strong></span>
+                                        <span>Alto: <strong class="text-dark" id="lblAltoActivo">25 cm</strong></span>
+                                    </div>
+                                    <small class="text-muted d-block mt-2" style="font-size: 0.74rem;">
+                                        Puedes modificar las dimensiones del vagón o agregar materiales en la pestaña <strong>Catálogo y Contenedor</strong>.
+                                    </small>
+                                </div>
+
+                                <div class="rw-sim-box p-3 rounded">
+                                    <span class="d-block fw-bold small mb-2 text-dark">
+                                        <i class="bi bi-distribute-horizontal me-1 text-warning-emphasis"></i>Simular Perfil en el Vagón:
+                                    </span>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn rw-btn-outline flex-fill btn-sm" data-preset="plana">Carga Plana</button>
+                                        <button type="button" class="btn rw-btn-outline active flex-fill btn-sm" data-preset="monticulo">Montículo</button>
+                                        <button type="button" class="btn rw-btn-outline flex-fill btn-sm" data-preset="inclinada">Inclinada</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arreglo Lineal de 5 Sensores (Fila India) -->
+                    <div class="col-12 col-xl-8">
+                        <div class="rw-card h-100">
+                            <div class="rw-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <h2 class="rw-card-title">
+                                    <i class="bi bi-distribute-horizontal me-2 text-success"></i>Arreglo Lineal Longitudinal (5 Sensores en Fila)
+                                </h2>
+                                <span class="badge bg-light text-dark border">Integración por Regla del Trapecio</span>
+                            </div>
+                            <div class="rw-card-body">
+                                <p class="text-muted small mb-3">
+                                    Los 5 sensores están alineados en una sola fila sobre el eje central del vagón. Cada sensor mide la distancia libre desde el techo hasta el material, obteniendo la altura real de carga (<strong>Altura = Alto Total − Distancia medida</strong>):
+                                </p>
+
+                                <!-- Esquema de Tren en Fila India (S1 -> S2 -> S3 -> S4 -> S5) -->
+                                <div class="rw-linear-wagon mb-4">
+                                    <div class="rw-wagon-direction d-flex justify-content-between small text-muted mb-2 px-1">
+                                        <span><i class="bi bi-arrow-left-circle me-1"></i>Frente del Vagón</span>
+                                        <span>Eje Central Longitudinal (1 sola fila)</span>
+                                        <span>Parte Posterior<i class="bi bi-arrow-right-circle ms-1"></i></span>
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <!-- Sensor 1 -->
+                                        <div class="col-12 col-md">
+                                            <div class="rw-sensor-box">
+                                                <span class="rw-sensor-badge">Sensor 1</span>
+                                                <small class="text-muted d-block mt-1">Sección Frontal</small>
+                                                <label class="rw-micro-lbl mt-2" for="d1">Distancia libre (cm)</label>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d1" value="13.0" step="0.5" min="2" max="25">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h1">12.0 cm</strong></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sensor 2 -->
+                                        <div class="col-12 col-md">
+                                            <div class="rw-sensor-box">
+                                                <span class="rw-sensor-badge">Sensor 2</span>
+                                                <small class="text-muted d-block mt-1">Intermedio Frontal</small>
+                                                <label class="rw-micro-lbl mt-2" for="d2">Distancia libre (cm)</label>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d2" value="10.5" step="0.5" min="2" max="25">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h2">14.5 cm</strong></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sensor 3 -->
+                                        <div class="col-12 col-md">
+                                            <div class="rw-sensor-box rw-sensor-center">
+                                                <span class="rw-sensor-badge bg-success text-white">Sensor 3</span>
+                                                <small class="text-muted d-block mt-1">Centro del Vagón</small>
+                                                <label class="rw-micro-lbl mt-2" for="d3">Distancia libre (cm)</label>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d3" value="8.0" step="0.5" min="2" max="25">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h3">17.0 cm</strong></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sensor 4 -->
+                                        <div class="col-12 col-md">
+                                            <div class="rw-sensor-box">
+                                                <span class="rw-sensor-badge">Sensor 4</span>
+                                                <small class="text-muted d-block mt-1">Intermedio Posterior</small>
+                                                <label class="rw-micro-lbl mt-2" for="d4">Distancia libre (cm)</label>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d4" value="11.0" step="0.5" min="2" max="25">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h4">14.0 cm</strong></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Sensor 5 -->
+                                        <div class="col-12 col-md">
+                                            <div class="rw-sensor-box">
+                                                <span class="rw-sensor-badge">Sensor 5</span>
+                                                <small class="text-muted d-block mt-1">Sección Posterior</small>
+                                                <label class="rw-micro-lbl mt-2" for="d5">Distancia libre (cm)</label>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d5" value="13.5" step="0.5" min="2" max="25">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h5">11.5 cm</strong></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Gráfica de Corte Longitudinal del Vagón -->
+                                <div class="rw-chart-box">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-secondary">PERFIL LONGITUDINAL DEL MATERIAL EN EL CONTENEDOR</span>
+                                        <span class="small text-muted" id="resTipoSuperficie">Distribución: Montículo Central</span>
+                                    </div>
+                                    <canvas id="chartSensores" height="90"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+                 PESTAÑA 2: HISTORIAL DE REGISTROS OPERATIVOS
+                 ================================================================= -->
+            <section class="rw-tab-pane" id="tab-registros">
+                <div class="rw-card">
+                    <div class="rw-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h2 class="rw-card-title mb-0"><i class="bi bi-journal-check me-2 text-success"></i>Bitácora de Estimaciones por Vagón</h2>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn rw-btn-outline btn-sm" id="btnExportarCSV">
+                                <i class="bi bi-download me-1"></i> Exportar Reporte (CSV)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="rw-card-body">
+                        <div class="table-responsive">
+                            <table class="table rw-clean-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Fecha y Hora</th>
+                                        <th>Estación / Vagón</th>
+                                        <th>Operador en Turno</th>
+                                        <th>Material y Densidad</th>
+                                        <th>Nivel Llenado</th>
+                                        <th>Volumen Ocupado</th>
+                                        <th>Masa Estimada</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaRegistrosBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+                 PESTAÑA 3: CATÁLOGO DE MATERIALES Y DIMENSIONES DEL CONTENEDOR
+                 ================================================================= -->
+            <section class="rw-tab-pane" id="tab-catalogo">
+                <div class="row g-4">
+                    <!-- Columna Izquierda: Catálogo y Formulario para Añadir Material -->
+                    <div class="col-12 col-xl-7">
+                        <div class="rw-card mb-4">
+                            <div class="rw-card-header d-flex justify-content-between align-items-center">
+                                <h2 class="rw-card-title"><i class="bi bi-layers me-2 text-success"></i>Catálogo de Materiales a Granel</h2>
+                                <span class="badge bg-light text-secondary border">Sincronizado con Selector</span>
+                            </div>
+                            <div class="rw-card-body">
+                                <div class="table-responsive">
+                                    <table class="table rw-clean-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Material</th>
+                                                <th>Densidad Suelta</th>
+                                                <th>Densidad Compactada</th>
+                                                <th>Uso Ferroviario</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaCatalogoBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Opción para Añadir Otros Materiales -->
+                        <div class="rw-card">
+                            <div class="rw-card-header d-flex justify-content-between align-items-center">
+                                <h2 class="rw-card-title"><i class="bi bi-plus-circle-fill me-2 text-success"></i>Registrar Nuevo Material en el Catálogo</h2>
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Pendiente enlace a BD</span>
+                            </div>
+                            <div class="rw-card-body">
+                                <form id="formNuevoMaterial" autocomplete="off">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="rw-form-label" for="nuevoMatNombre">Nombre del Material</label>
+                                            <input type="text" id="nuevoMatNombre" class="form-control" placeholder="Ej. Cemento Gris / Azúcar" required maxlength="45">
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <label class="rw-form-label" for="nuevoMatSuelta">Dens. Suelta (g/cm³)</label>
+                                            <input type="number" id="nuevoMatSuelta" class="form-control" placeholder="1.25" step="0.01" min="0.1" max="5.0" required>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <label class="rw-form-label" for="nuevoMatComp">Dens. Comp. (g/cm³)</label>
+                                            <input type="number" id="nuevoMatComp" class="form-control" placeholder="1.45" step="0.01" min="0.1" max="5.0" required>
+                                        </div>
+                                        <div class="col-12 col-md-8">
+                                            <label class="rw-form-label" for="nuevoMatUso">Descripción o Tipo de Carga</label>
+                                            <input type="text" id="nuevoMatUso" class="form-control" placeholder="Ej. Carga industrial o agroindustrial" required maxlength="60">
+                                        </div>
+                                        <div class="col-12 col-md-4 d-flex align-items-end">
+                                            <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold">
+                                                <i class="bi bi-plus-lg me-1"></i> Añadir Material
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Modificar Dimensiones del Contenedor -->
+                    <div class="col-12 col-xl-5">
+                        <div class="rw-card h-100">
+                            <div class="rw-card-header">
+                                <h2 class="rw-card-title"><i class="bi bi-rulers me-2 text-success"></i>Dimensiones del Contenedor (Vagón a Escala)</h2>
+                            </div>
+                            <div class="rw-card-body">
+                                <p class="text-muted small mb-3">
+                                    Ajusta aquí las medidas internas reales de tu maqueta tipo vagón ferroviario. Al guardar los cambios, todos los cálculos de volumen y las alturas de los 5 sensores se actualizarán automáticamente:
+                                </p>
+
+                                <form id="formDimensionesContenedor" autocomplete="off">
+                                    <div class="mb-3">
+                                        <label class="rw-form-label" for="inputCodigoVagon">Identificador del Contenedor / Vagón</label>
+                                        <input type="text" id="inputCodigoVagon" class="form-control" value="Vagón #937620" required maxlength="25">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="rw-form-label" for="inputLargo">Largo Interno Longitudinal (cm)</label>
+                                        <div class="input-group">
+                                            <input type="number" id="inputLargo" class="form-control" value="75.0" step="0.5" min="15" max="300" required>
+                                            <span class="input-group-text">cm</span>
+                                        </div>
+                                        <small class="text-muted">Eje donde van montados los 5 sensores en fila.</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="rw-form-label" for="inputAncho">Ancho Interno Transversal (cm)</label>
+                                        <div class="input-group">
+                                            <input type="number" id="inputAncho" class="form-control" value="20.0" step="0.5" min="10" max="200" required>
+                                            <span class="input-group-text">cm</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="rw-form-label" for="inputAlto">Altura Interna Total (cm)</label>
+                                        <div class="input-group">
+                                            <input type="number" id="inputAlto" class="form-control" value="25.0" step="0.5" min="10" max="200" required>
+                                            <span class="input-group-text">cm</span>
+                                        </div>
+                                        <small class="text-muted">Distancia desde el fondo del vagón hasta los sensores.</small>
+                                    </div>
+
+                                    <div class="p-3 rounded bg-light border mb-4">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">Área de la Base:</span>
+                                            <strong id="specAreaBase">1,500 cm²</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">Capacidad Volumétrica Total:</span>
+                                            <strong id="specCapacidadTotal">37,500 cm³</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">Separación sugerida entre sensores:</span>
+                                            <strong class="text-success" id="specSeparacionSensores">15.0 cm</strong>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold">
+                                        <i class="bi bi-check2-circle me-1"></i> Aplicar Dimensiones al Sistema
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+                 PESTAÑA 4: CONEXIÓN ESP32 Y SERVIDOR DE BASE DE DATOS
+                 ================================================================= -->
+            <section class="rw-tab-pane" id="tab-conexion">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-6">
+                        <div class="rw-card h-100">
+                            <div class="rw-card-header">
+                                <h2 class="rw-card-title"><i class="bi bi-wifi me-2 text-success"></i>Enlace Inalámbrico con Microcontrolador ESP32</h2>
+                            </div>
+                            <div class="rw-card-body">
+                                <p class="text-muted small">
+                                    Parámetros de comunicación para la recepción de las 5 lecturas ultrasónicas mediante red Wi-Fi local:
+                                </p>
+                                <div class="mb-3">
+                                    <label class="rw-form-label" for="inputEspIp">Dirección del Nodo ESP32 (Endpoint HTTP)</label>
+                                    <input type="url" id="inputEspIp" class="form-control" value="http://192.168.1.100/api/sensores">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="rw-form-label" for="selectBarrido">Modo de Disparo Secuencial</label>
+                                    <select id="selectBarrido" class="form-select">
+                                        <option selected>Barrido secuencial con pausa de 50 ms entre sensores</option>
+                                        <option>Lectura bajo demanda del operador</option>
+                                    </select>
+                                </div>
+                                <div class="p-3 rounded bg-light border small">
+                                    <span class="fw-bold d-block text-dark mb-1">Trama de datos esperada del circuito:</span>
+                                    <code class="text-success">{"vagon": "937620", "d1": 13.0, "d2": 10.5, "d3": 8.0, "d4": 11.0, "d5": 13.5}</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="rw-card h-100">
+                            <div class="rw-card-header">
+                                <h2 class="rw-card-title"><i class="bi bi-shield-check me-2 text-success"></i>Estado del Servidor y Seguridad de Datos</h2>
+                            </div>
+                            <div class="rw-card-body">
+                                <p class="text-muted small">
+                                    Configuración del servicio de almacenamiento y medidas de protección activa en la plataforma web:
+                                </p>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <span class="text-muted">Estado de la Base de Datos:</span>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Modo Local (Lista para conectar)</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <span class="text-muted">Protocolo de Transporte:</span>
+                                        <strong>HTTPS / TLS Cifrado</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <span class="text-muted">Autenticación del Nodo IoT:</span>
+                                        <strong>Token de API Verificado</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <span class="text-muted">Protección de Formularios:</span>
+                                        <strong>Sanitización contra inyección activa</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+                 PESTAÑA 5: PERFIL DEL OPERADOR AUTENTICADO (SEGURO)
+                 ================================================================= -->
+            <section class="rw-tab-pane" id="tab-perfil">
+                <div class="row g-4 justify-content-center">
+                    <div class="col-12 col-lg-6">
+                        <div class="rw-card h-100">
+                            <div class="rw-card-header d-flex justify-content-between align-items-center">
+                                <h2 class="rw-card-title"><i class="bi bi-person-vcard me-2 text-success"></i>Credencial del Operador en Turno</h2>
+                                <span class="badge bg-success"><i class="bi bi-lock-fill me-1"></i>Sesión Autenticada</span>
+                            </div>
+                            <div class="rw-card-body text-center py-4">
+                                <div class="rw-profile-circle mx-auto mb-3" id="profileBigAvatar">CV</div>
+                                <h3 class="fs-5 fw-bold mb-1" id="profileName">Carlos Alfredo Vázquez Morales</h3>
+                                <p class="text-success fw-semibold small mb-3" id="profileRole">Supervisor de Calidad y Monitoreo</p>
+
+                                <div class="text-start border-top pt-3 mt-3">
+                                    <div class="d-flex justify-content-between py-2 border-bottom">
+                                        <span class="text-muted">Usuario de Red:</span>
+                                        <strong id="profileUsername">cvazquez</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-2 border-bottom">
+                                        <span class="text-muted">Estación Asignada:</span>
+                                        <strong id="profileStation">Estación Macuspana (El Suspiro)</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-2 border-bottom">
+                                        <span class="text-muted">Tramo Operativo:</span>
+                                        <strong>Línea FA • Corredor Interoceánico</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-2 border-bottom">
+                                        <span class="text-muted">Inicio de Sesión Actual:</span>
+                                        <strong id="profileLoginTime">--:--</strong>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-2">
+                                    <button type="button" class="btn btn-outline-danger w-100 py-2 fw-semibold" id="btnCerrarSesion">
+                                        <i class="bi bi-box-arrow-left me-2"></i>Cerrar Sesión Segura
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Librerías JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

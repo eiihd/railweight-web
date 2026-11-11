@@ -1,0 +1,518 @@
+/* ==========================================================================
+   RAILWEIGHT - DISEÑO INDUSTRIAL (ESTILO NEWARK INSTRUMENTATION)
+   Fuentes: Poppins (Indian Type Foundry) y Lato (Lukasz Dziedzic)
+   ========================================================================== */
+
+:root {
+    --rw-charcoal: #21272A;
+    --rw-charcoal-light: #2C3438;
+    --rw-green: #2E7D32;
+    --rw-green-hover: #1B5E20;
+    --rw-orange: #E65100;
+    --rw-bg: #F4F6F8;
+    --rw-white: #FFFFFF;
+    --rw-border: #DDE2E6;
+    --rw-text: #263238;
+    --rw-muted: #607D8B;
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: var(--rw-bg);
+    color: var(--rw-text);
+    margin: 0;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6,
+.rw-brand-name,
+.rw-main-weight,
+.rw-mini-val,
+.rw-nav-link {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ================= PANTALLA DE INICIO DE SESIÓN ================= */
+.rw-login-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1A2023 0%, #2C3539 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.rw-login-overlay.hidden {
+    display: none;
+}
+
+.rw-login-card {
+    background-color: var(--rw-white);
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    padding: 2.25rem 2rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    border-top: 5px solid var(--rw-green);
+}
+
+/* ================= ESTRUCTURA GENERAL CON SIDEBAR DESPLEGABLE ================= */
+.rw-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.rw-sidebar {
+    width: 265px;
+    background-color: var(--rw-charcoal);
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s ease;
+    flex-shrink: 0;
+    z-index: 1000;
+}
+
+.rw-layout.sidebar-collapsed .rw-sidebar {
+    width: 76px;
+}
+
+.rw-layout.sidebar-collapsed .rw-brand-text,
+.rw-layout.sidebar-collapsed .rw-user-info,
+.rw-layout.sidebar-collapsed .rw-nav-section-label,
+.rw-layout.sidebar-collapsed .rw-nav-link span,
+.rw-layout.sidebar-collapsed .rw-status-text {
+    display: none;
+}
+
+.rw-layout.sidebar-collapsed .rw-nav-link {
+    justify-content: center;
+    padding: 0.85rem 0;
+}
+
+.rw-layout.sidebar-collapsed .rw-nav-link i {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.rw-sidebar-brand {
+    padding: 1.25rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rw-logo-box {
+    width: 40px;
+    height: 40px;
+    background-color: var(--rw-green);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.rw-brand-name {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
+}
+
+.rw-brand-tag {
+    display: block;
+    font-size: 0.72rem;
+    color: #B0BEC5;
+}
+
+.rw-sidebar-user {
+    margin: 1rem;
+    padding: 0.75rem;
+    background-color: var(--rw-charcoal-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rw-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--rw-orange);
+    color: #FFFFFF;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rw-user-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #FFFFFF;
+}
+
+.rw-user-role {
+    font-size: 0.72rem;
+    color: #B0BEC5;
+}
+
+.rw-nav-section-label {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #90A4AE;
+    letter-spacing: 0.08em;
+}
+
+.rw-nav-list {
+    list-style: none;
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+    flex: 1;
+}
+
+.rw-nav-link {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #CFD8DC;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.rw-nav-link i {
+    font-size: 1.1rem;
+}
+
+.rw-nav-link:hover {
+    background-color: var(--rw-charcoal-light);
+    color: #FFFFFF;
+}
+
+.rw-nav-link.active {
+    background-color: var(--rw-green);
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.rw-sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rw-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #CFD8DC;
+}
+
+.rw-dot-online {
+    width: 9px;
+    height: 9px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ================= CABECERA Y CONTENIDO PRINCIPAL ================= */
+.rw-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.rw-header {
+    background-color: var(--rw-white);
+    border-bottom: 1px solid var(--rw-border);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rw-toggle-btn {
+    background-color: #F0F3F5;
+    border: 1px solid var(--rw-border);
+    border-radius: 6px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.25rem;
+    color: var(--rw-charcoal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.rw-toggle-btn:hover {
+    background-color: #E2E7EB;
+}
+
+.rw-page-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--rw-charcoal);
+}
+
+.rw-page-subtitle {
+    font-size: 0.82rem;
+    color: var(--rw-muted);
+}
+
+.rw-header-badge {
+    background-color: #F8FAFC;
+    border: 1px solid var(--rw-border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.rw-content {
+    padding: 1.75rem 2rem;
+}
+
+.rw-tab-pane {
+    display: none;
+}
+
+.rw-tab-pane.active {
+    display: block;
+}
+
+/* ================= BANNER DEL RESULTADO PRINCIPAL ================= */
+.rw-result-banner {
+    background-color: var(--rw-white);
+    border: 1px solid var(--rw-border);
+    border-left: 6px solid var(--rw-green);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.rw-result-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--rw-green);
+}
+
+.rw-main-weight {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--rw-charcoal);
+    line-height: 1.1;
+}
+
+.rw-main-unit {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--rw-muted);
+}
+
+.rw-sub-weight {
+    font-size: 1rem;
+    color: var(--rw-muted);
+}
+
+.rw-result-meta {
+    font-size: 0.88rem;
+    color: var(--rw-muted);
+}
+
+.rw-mini-metric {
+    background-color: #F8FAFB;
+    border: 1px solid #E6EAEE;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+}
+
+.rw-mini-label {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--rw-muted);
+    margin-bottom: 2px;
+}
+
+.rw-mini-val {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--rw-charcoal);
+}
+
+/* ================= TARJETAS Y VAGÓN LINEAL (FILA INDIA) ================= */
+.rw-card {
+    background-color: var(--rw-white);
+    border: 1px solid var(--rw-border);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.rw-card-header {
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid var(--rw-border);
+}
+
+.rw-card-title {
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--rw-charcoal);
+}
+
+.rw-card-body {
+    padding: 1.5rem;
+}
+
+.rw-form-label {
+    font-weight: 700;
+    font-size: 0.84rem;
+    color: var(--rw-charcoal);
+    margin-bottom: 0.4rem;
+}
+
+.rw-sim-box {
+    background-color: #FFF8F3;
+    border: 1px solid #FFE0B2;
+}
+
+/* Contenedor visual del arreglo en Fila India */
+.rw-linear-wagon {
+    background-color: #F1F5F9;
+    border: 2px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.rw-sensor-box {
+    background-color: var(--rw-white);
+    border: 1px solid var(--rw-border);
+    border-radius: 8px;
+    padding: 0.85rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.rw-sensor-center {
+    background-color: #F1F8E9;
+    border-color: #81C784;
+}
+
+.rw-sensor-badge {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #E2E8F0;
+    color: var(--rw-charcoal);
+    padding: 2px 10px;
+    border-radius: 4px;
+}
+
+.rw-micro-lbl {
+    font-size: 0.74rem;
+    color: var(--rw-muted);
+    display: block;
+}
+
+.rw-sensor-height {
+    font-size: 0.85rem;
+    color: var(--rw-green);
+}
+
+.rw-chart-box {
+    background-color: #FFFFFF;
+    border: 1px solid var(--rw-border);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* ================= BOTONES Y TABLAS ================= */
+.rw-btn-green {
+    background-color: var(--rw-green);
+    color: #FFFFFF;
+    border: none;
+}
+
+.rw-btn-green:hover {
+    background-color: var(--rw-green-hover);
+    color: #FFFFFF;
+}
+
+.rw-btn-orange {
+    background-color: var(--rw-orange);
+    color: #FFFFFF;
+    border: none;
+    font-weight: 600;
+}
+
+.rw-btn-orange:hover {
+    background-color: #BF360C;
+    color: #FFFFFF;
+}
+
+.rw-btn-outline {
+    border: 1px solid #B0BEC5;
+    color: var(--rw-charcoal);
+    background-color: #FFFFFF;
+}
+
+.rw-btn-outline.active,
+.rw-btn-outline:hover {
+    background-color: var(--rw-charcoal);
+    color: #FFFFFF;
+    border-color: var(--rw-charcoal);
+}
+
+.rw-clean-table thead th {
+    background-color: #F4F6F8;
+    color: var(--rw-charcoal);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.9rem 1rem;
+    border-bottom: 2px solid var(--rw-border);
+}
+
+.rw-clean-table tbody td {
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+}
+
+.rw-profile-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: var(--rw-charcoal);
+    color: #FFFFFF;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
