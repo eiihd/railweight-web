@@ -6,7 +6,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>RailWeight | Sistema de Estimación de Masa Ferroviaria</title>
 
-    <!-- Fuentes: Poppins (Indian Type Foundry) y Lato (Lukasz Dziedzic) -->
+    <!-- Fuentes: Poppins y Lato -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
 </head>
 <body>
 
-<!-- ================= PANTALLA DE INICIO DE SESIÓN SEGURO ================= -->
+<!-- ================= PANTALLA DE INICIO DE SESIÓN Y RECUPERACIÓN ================= -->
 <div class="rw-login-overlay" id="loginOverlay">
     <div class="rw-login-card">
         <div class="text-center mb-4">
@@ -32,34 +32,83 @@
         </div>
 
         <div id="loginAlert" class="alert alert-danger py-2 small d-none" role="alert"></div>
+        <div id="loginSuccess" class="alert alert-success py-2 small d-none" role="alert"></div>
 
-        <form id="formLogin" autocomplete="off">
-            <div class="mb-3">
-                <label class="rw-form-label" for="loginUsername">Usuario Operativo</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light"><i class="bi bi-person-fill text-secondary"></i></span>
-                    <input type="text" id="loginUsername" class="form-control" placeholder="Ej. cvazquez" required maxlength="30">
+        <!-- Vista A: Inicio de Sesión -->
+        <div id="panelLogin">
+            <form id="formLogin" autocomplete="off">
+                <div class="mb-3">
+                    <label class="rw-form-label" for="loginEmail">Correo Electrónico Operativo</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-envelope-fill text-secondary"></i></span>
+                        <input type="email" id="loginEmail" class="form-control" placeholder="operador@correo.com" required maxlength="80">
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-4">
-                <label class="rw-form-label" for="loginPassword">Contraseña de Acceso</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light"><i class="bi bi-lock-fill text-secondary"></i></span>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required maxlength="40">
+                <div class="mb-3">
+                    <label class="rw-form-label" for="loginPassword">Contraseña de Acceso</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-lock-fill text-secondary"></i></span>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required maxlength="60">
+                    </div>
                 </div>
-            </div>
 
-            <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold" id="btnSubmitLogin">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
-            </button>
-        </form>
+                <div class="text-end mb-3">
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-success fw-semibold" id="btnMostrarRecuperar">
+                        ¿Olvidaste tu contraseña?
+                    </button>
+                </div>
+
+                <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold" id="btnSubmitLogin">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                </button>
+            </form>
+        </div>
+
+        <!-- Vista B: Solicitar Recuperación por Correo -->
+        <div id="panelRecuperar" class="d-none">
+            <p class="small text-muted mb-3">
+                Ingresa el correo registrado en tu cuenta. Recibirás un enlace seguro para restablecer tu contraseña.
+            </p>
+            <form id="formRecuperar" autocomplete="off">
+                <div class="mb-3">
+                    <label class="rw-form-label" for="recuperarEmail">Correo Electrónico</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-envelope-at text-secondary"></i></span>
+                        <input type="email" id="recuperarEmail" class="form-control" placeholder="operador@correo.com" required maxlength="80">
+                    </div>
+                </div>
+                <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold mb-2">
+                    <i class="bi bi-send-fill me-2"></i>Enviar Enlace de Recuperación
+                </button>
+                <button type="button" class="btn btn-outline-secondary w-100 btn-sm" id="btnVolverLogin">
+                    Volver al Inicio de Sesión
+                </button>
+            </form>
+        </div>
+
+        <!-- Vista C: Definir Nueva Contraseña (al volver desde el enlace del correo) -->
+        <div id="panelNuevaPass" class="d-none">
+            <p class="small text-muted mb-3">
+                Enlace verificado. Define tu nueva contraseña operativa (mínimo 8 caracteres).
+            </p>
+            <form id="formNuevaPass" autocomplete="off">
+                <div class="mb-3">
+                    <label class="rw-form-label" for="resetNewPass">Nueva Contraseña</label>
+                    <input type="password" id="resetNewPass" class="form-control" minlength="8" maxlength="60" required>
+                </div>
+                <div class="mb-3">
+                    <label class="rw-form-label" for="resetConfirmPass">Confirmar Nueva Contraseña</label>
+                    <input type="password" id="resetConfirmPass" class="form-control" minlength="8" maxlength="60" required>
+                </div>
+                <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold">
+                    <i class="bi bi-key-fill me-2"></i>Guardar Nueva Contraseña
+                </button>
+            </form>
+        </div>
 
         <div class="mt-4 pt-3 border-top text-center">
-            <small class="text-muted d-block mb-1"><i class="bi bi-shield-lock text-success me-1"></i>Sesión protegida con control de acceso</small>
-            <small class="text-secondary" style="font-size: 0.75rem;">
-                Usuarios de demostración: <strong>cvazquez</strong>, <strong>hlopez</strong> o <strong>adelacruz</strong> | Clave: <strong>Rail2026*</strong>
-            </small>
+            <small class="text-muted d-block"><i class="bi bi-shield-lock text-success me-1"></i>Autenticación cifrada conectada a servidor seguro</small>
         </div>
     </div>
 </div>
@@ -81,10 +130,10 @@
 
         <!-- Resumen del operador autenticado -->
         <div class="rw-sidebar-user" id="sidebarUserCard" title="Ver mi perfil">
-            <div class="rw-avatar" id="sidebarAvatar">CV</div>
+            <div class="rw-avatar" id="sidebarAvatar">--</div>
             <div class="rw-user-info">
-                <div class="rw-user-name" id="sidebarUserName">Carlos Vázquez</div>
-                <div class="rw-user-role" id="sidebarUserStation">Estación Macuspana</div>
+                <div class="rw-user-name" id="sidebarUserName">Cargando...</div>
+                <div class="rw-user-role" id="sidebarUserStation">Estación</div>
             </div>
         </div>
 
@@ -124,8 +173,8 @@
 
         <div class="rw-sidebar-footer">
             <div class="rw-status-pill">
-                <span class="rw-dot-online"></span>
-                <span class="rw-status-text">ESP32: En espera de enlace</span>
+                <span class="rw-dot-online" id="espStatusDot"></span>
+                <span class="rw-status-text" id="espStatusText">BD conectada • En espera ESP32</span>
             </div>
         </div>
     </aside>
@@ -148,9 +197,9 @@
             <div class="d-flex align-items-center gap-3">
                 <div class="rw-header-badge d-none d-md-flex align-items-center">
                     <i class="bi bi-geo-alt-fill text-success me-2"></i>
-                    <span>Línea FA • <strong id="headerStationText">Estación Macuspana</strong></span>
+                    <span>Tabasco • <strong id="headerStationText">Estación</strong></span>
                 </div>
-                <button class="btn rw-btn-orange btn-sm px-3 py-2" id="btnQuickSim">
+                <button class="btn rw-btn-orange btn-sm px-3 py-2" id="btnQuickSim" title="Leer última medición enviada por el ESP32">
                     <i class="bi bi-arrow-repeat me-1"></i> Solicitar Lectura
                 </button>
             </div>
@@ -170,12 +219,12 @@
                         <div class="col-12 col-lg-5 border-end-lg">
                             <span class="rw-result-tag">MASA ESTIMADA DEL CONTENEDOR</span>
                             <div class="d-flex align-items-baseline gap-2 mt-1">
-                                <span class="rw-main-weight" id="resMasaKg">31.50</span>
+                                <span class="rw-main-weight" id="resMasaKg">0.00</span>
                                 <span class="rw-main-unit">kg</span>
-                                <span class="rw-sub-weight ms-2" id="resMasaGramos">(31,500 g)</span>
+                                <span class="rw-sub-weight ms-2" id="resMasaGramos">(0 g)</span>
                             </div>
                             <p class="rw-result-meta mb-0 mt-1">
-                                Material: <strong id="resMaterialNombre">Arena Seca</strong> • Densidad: <strong id="resDensidadVal">1.50 g/cm³</strong>
+                                Material: <strong id="resMaterialNombre">--</strong> • Densidad: <strong id="resDensidadVal">0.00 g/cm³</strong>
                             </p>
                         </div>
 
@@ -184,15 +233,15 @@
                                 <div class="col-6 col-sm-4">
                                     <div class="rw-mini-metric">
                                         <span class="rw-mini-label">Volumen Ocupado</span>
-                                        <strong class="rw-mini-val" id="resVolumenCm3">21,000 cm³</strong>
-                                        <small class="text-muted d-block">Cap. total: <span id="resCapMax">37,500 cm³</span></small>
+                                        <strong class="rw-mini-val" id="resVolumenCm3">0 cm³</strong>
+                                        <small class="text-muted d-block">Cap. útil: <span id="resCapMax">0 cm³</span></small>
                                     </div>
                                 </div>
                                 <div class="col-6 col-sm-4">
                                     <div class="rw-mini-metric">
                                         <span class="rw-mini-label">Nivel de Llenado</span>
-                                        <strong class="rw-mini-val text-success" id="resNivelPct">56.0 %</strong>
-                                        <small class="text-muted d-block">Altura prom: <span id="resAlturaProm">14.0 cm</span></small>
+                                        <strong class="rw-mini-val text-success" id="resNivelPct">0.0 %</strong>
+                                        <small class="text-muted d-block">Altura prom: <span id="resAlturaProm">0.0 cm</span></small>
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-4">
@@ -205,15 +254,30 @@
                     </div>
                 </div>
 
+                <!-- Alerta dinámica si se supera el nivel útil (11 cm) o la zona ciega del sensor -->
+                <div id="alertaSensores" class="alert alert-warning py-2 small d-none mb-4" role="alert"></div>
+
                 <!-- FILA DE OPERACIÓN: PARÁMETROS + ARREGLO LINEAL DE 5 SENSORES -->
                 <div class="row g-4">
-                    <!-- Selección de Carga -->
+                    <!-- Selección de Carga y Contenedor Registrado -->
                     <div class="col-12 col-xl-4">
                         <div class="rw-card h-100">
                             <div class="rw-card-header">
                                 <h2 class="rw-card-title"><i class="bi bi-sliders me-2 text-success"></i>Parámetros de la Carga</h2>
                             </div>
                             <div class="rw-card-body">
+                                <!-- Selector de Contenedor Registrado -->
+                                <div class="mb-3">
+                                    <label class="rw-form-label" for="selectContenedor">Contenedor / Vagón Registrado</label>
+                                    <select id="selectContenedor" class="form-select"></select>
+                                </div>
+
+                                <!-- Selector de Estación (editable solo para Admin/Supervisor) -->
+                                <div class="mb-3 d-none" id="bloqueEstacionMedicion">
+                                    <label class="rw-form-label" for="selectEstacionMedicion">Estación donde se realiza el pesaje</label>
+                                    <select id="selectEstacionMedicion" class="form-select"></select>
+                                </div>
+
                                 <div class="mb-3">
                                     <label class="rw-form-label" for="selectMaterial">Material a Granel</label>
                                     <select id="selectMaterial" class="form-select"></select>
@@ -230,30 +294,39 @@
                                     <div class="col-6">
                                         <label class="rw-form-label" for="inputDensidad">Densidad Aplicada</label>
                                         <div class="input-group">
-                                            <input type="text" id="inputDensidad" class="form-control bg-light fw-bold" value="1.50" readonly>
+                                            <input type="text" id="inputDensidad" class="form-control bg-light fw-bold" value="0.00" readonly>
                                             <span class="input-group-text">g/cm³</span>
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Ficha geométrica en solo lectura -->
                                 <div class="p-3 rounded bg-light border mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="fw-bold small text-dark"><i class="bi bi-bounding-box me-1 text-success"></i>Vagón a Escala Activo</span>
-                                        <span class="badge bg-secondary" id="badgeCodigoVagon">Vagón #937620</span>
+                                        <span class="fw-bold small text-dark"><i class="bi bi-bounding-box me-1 text-success"></i>Especificación Activa</span>
+                                        <span class="badge bg-secondary" id="badgeCodigoVagon">--</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Base inferior:</span>
+                                        <strong class="text-dark" id="lblBaseActiva">--</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Nivel máx. útil:</span>
+                                        <strong class="text-dark" id="lblSupActiva">--</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Llenado máx. permitido:</span>
+                                        <strong class="text-success" id="lblAltoUtilActivo">--</strong>
                                     </div>
                                     <div class="d-flex justify-content-between small text-muted">
-                                        <span>Largo: <strong class="text-dark" id="lblLargoActivo">75 cm</strong></span>
-                                        <span>Ancho: <strong class="text-dark" id="lblAnchoActivo">20 cm</strong></span>
-                                        <span>Alto: <strong class="text-dark" id="lblAltoActivo">25 cm</strong></span>
+                                        <span>Altura total a sensores:</span>
+                                        <strong class="text-dark" id="lblAltoSensorActivo">--</strong>
                                     </div>
-                                    <small class="text-muted d-block mt-2" style="font-size: 0.74rem;">
-                                        Puedes modificar las dimensiones del vagón o agregar materiales en la pestaña <strong>Catálogo y Contenedor</strong>.
-                                    </small>
                                 </div>
 
                                 <div class="rw-sim-box p-3 rounded">
                                     <span class="d-block fw-bold small mb-2 text-dark">
-                                        <i class="bi bi-distribute-horizontal me-1 text-warning-emphasis"></i>Simular Perfil en el Vagón:
+                                        <i class="bi bi-distribute-horizontal me-1 text-warning-emphasis"></i>Simular Perfil de Prueba:
                                     </span>
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn rw-btn-outline flex-fill btn-sm" data-preset="plana">Carga Plana</button>
@@ -272,11 +345,11 @@
                                 <h2 class="rw-card-title">
                                     <i class="bi bi-distribute-horizontal me-2 text-success"></i>Arreglo Lineal Longitudinal (5 Sensores en Fila)
                                 </h2>
-                                <span class="badge bg-light text-dark border">Integración por Regla del Trapecio</span>
+                                <span class="badge bg-light text-dark border" id="lblUltimaLecturaLive">Sin lectura en vivo</span>
                             </div>
                             <div class="rw-card-body">
                                 <p class="text-muted small mb-3">
-                                    Los 5 sensores están alineados en una sola fila sobre el eje central del vagón. Cada sensor mide la distancia libre desde el techo hasta el material, obteniendo la altura real de carga (<strong>Altura = Alto Total − Distancia medida</strong>):
+                                    Los 5 sensores están alineados en una sola fila sobre el eje central. Cada sensor mide la distancia libre desde su cara inferior hasta el material, obteniendo la altura real de carga (<strong>Altura = Altura a Sensores − Distancia medida</strong>):
                                 </p>
 
                                 <!-- Esquema de Tren en Fila India (S1 -> S2 -> S3 -> S4 -> S5) -->
@@ -288,58 +361,53 @@
                                     </div>
 
                                     <div class="row g-2">
-                                        <!-- Sensor 1 -->
                                         <div class="col-12 col-md">
                                             <div class="rw-sensor-box">
                                                 <span class="rw-sensor-badge">Sensor 1</span>
                                                 <small class="text-muted d-block mt-1">Sección Frontal</small>
                                                 <label class="rw-micro-lbl mt-2" for="d1">Distancia libre (cm)</label>
-                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d1" value="13.0" step="0.5" min="2" max="25">
-                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h1">12.0 cm</strong></div>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d1" value="11.5" step="0.1" min="0" max="400">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h1">4.0 cm</strong></div>
                                             </div>
                                         </div>
 
-                                        <!-- Sensor 2 -->
                                         <div class="col-12 col-md">
                                             <div class="rw-sensor-box">
                                                 <span class="rw-sensor-badge">Sensor 2</span>
                                                 <small class="text-muted d-block mt-1">Intermedio Frontal</small>
                                                 <label class="rw-micro-lbl mt-2" for="d2">Distancia libre (cm)</label>
-                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d2" value="10.5" step="0.5" min="2" max="25">
-                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h2">14.5 cm</strong></div>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d2" value="9.8" step="0.1" min="0" max="400">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h2">5.7 cm</strong></div>
                                             </div>
                                         </div>
 
-                                        <!-- Sensor 3 -->
                                         <div class="col-12 col-md">
                                             <div class="rw-sensor-box rw-sensor-center">
                                                 <span class="rw-sensor-badge bg-success text-white">Sensor 3</span>
                                                 <small class="text-muted d-block mt-1">Centro del Vagón</small>
                                                 <label class="rw-micro-lbl mt-2" for="d3">Distancia libre (cm)</label>
-                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d3" value="8.0" step="0.5" min="2" max="25">
-                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h3">17.0 cm</strong></div>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d3" value="8.2" step="0.1" min="0" max="400">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h3">7.3 cm</strong></div>
                                             </div>
                                         </div>
 
-                                        <!-- Sensor 4 -->
                                         <div class="col-12 col-md">
                                             <div class="rw-sensor-box">
                                                 <span class="rw-sensor-badge">Sensor 4</span>
                                                 <small class="text-muted d-block mt-1">Intermedio Posterior</small>
                                                 <label class="rw-micro-lbl mt-2" for="d4">Distancia libre (cm)</label>
-                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d4" value="11.0" step="0.5" min="2" max="25">
-                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h4">14.0 cm</strong></div>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d4" value="10.0" step="0.1" min="0" max="400">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h4">5.5 cm</strong></div>
                                             </div>
                                         </div>
 
-                                        <!-- Sensor 5 -->
                                         <div class="col-12 col-md">
                                             <div class="rw-sensor-box">
                                                 <span class="rw-sensor-badge">Sensor 5</span>
                                                 <small class="text-muted d-block mt-1">Sección Posterior</small>
                                                 <label class="rw-micro-lbl mt-2" for="d5">Distancia libre (cm)</label>
-                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d5" value="13.5" step="0.5" min="2" max="25">
-                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h5">11.5 cm</strong></div>
+                                                <input type="number" class="form-control form-control-sm text-center sensor-input" id="d5" value="11.7" step="0.1" min="0" max="400">
+                                                <div class="rw-sensor-height mt-2">Carga: <strong id="h5">3.8 cm</strong></div>
                                             </div>
                                         </div>
                                     </div>
@@ -368,7 +436,16 @@
                         <div>
                             <h2 class="rw-card-title mb-0"><i class="bi bi-journal-check me-2 text-success"></i>Bitácora de Estimaciones por Vagón</h2>
                         </div>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <!-- Filtro por estación (visible para Admin y Supervisor) -->
+                            <div id="bloqueFiltroEstacion" class="d-none">
+                                <select id="filtroEstacionHistorial" class="form-select form-select-sm">
+                                    <option value="todas">Todas las estaciones de Tabasco</option>
+                                </select>
+                            </div>
+                            <button class="btn rw-btn-outline btn-sm" id="btnRecargarHistorial">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                            </button>
                             <button class="btn rw-btn-outline btn-sm" id="btnExportarCSV">
                                 <i class="bi bi-download me-1"></i> Exportar Reporte (CSV)
                             </button>
@@ -389,7 +466,11 @@
                                         <th>Masa Estimada</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tablaRegistrosBody"></tbody>
+                                <tbody id="tablaRegistrosBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-4">Cargando historial desde base de datos...</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -397,16 +478,16 @@
             </section>
 
             <!-- =================================================================
-                 PESTAÑA 3: CATÁLOGO DE MATERIALES Y DIMENSIONES DEL CONTENEDOR
+                 PESTAÑA 3: CATÁLOGO DE MATERIALES Y CONTENEDORES REGISTRADOS
                  ================================================================= -->
             <section class="rw-tab-pane" id="tab-catalogo">
                 <div class="row g-4">
-                    <!-- Columna Izquierda: Catálogo y Formulario para Añadir Material -->
-                    <div class="col-12 col-xl-7">
+                    <!-- Columna Izquierda: Catálogo de Materiales -->
+                    <div class="col-12 col-xl-6">
                         <div class="rw-card mb-4">
                             <div class="rw-card-header d-flex justify-content-between align-items-center">
                                 <h2 class="rw-card-title"><i class="bi bi-layers me-2 text-success"></i>Catálogo de Materiales a Granel</h2>
-                                <span class="badge bg-light text-secondary border">Sincronizado con Selector</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Sincronizado con BD</span>
                             </div>
                             <div class="rw-card-body">
                                 <div class="table-responsive">
@@ -425,105 +506,149 @@
                             </div>
                         </div>
 
-                        <!-- Opción para Añadir Otros Materiales -->
-                        <div class="rw-card">
-                            <div class="rw-card-header d-flex justify-content-between align-items-center">
+                        <!-- Formulario de Nuevo Material (solo Admin / Supervisor) -->
+                        <div class="rw-card d-none" id="cardNuevoMaterial">
+                            <div class="rw-card-header">
                                 <h2 class="rw-card-title"><i class="bi bi-plus-circle-fill me-2 text-success"></i>Registrar Nuevo Material en el Catálogo</h2>
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Pendiente enlace a BD</span>
                             </div>
                             <div class="rw-card-body">
                                 <form id="formNuevoMaterial" autocomplete="off">
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
                                             <label class="rw-form-label" for="nuevoMatNombre">Nombre del Material</label>
-                                            <input type="text" id="nuevoMatNombre" class="form-control" placeholder="Ej. Cemento Gris / Azúcar" required maxlength="45">
+                                            <input type="text" id="nuevoMatNombre" class="form-control" placeholder="Ej. Cemento Gris / Azúcar" required maxlength="60">
                                         </div>
                                         <div class="col-6 col-md-3">
-                                            <label class="rw-form-label" for="nuevoMatSuelta">Dens. Suelta (g/cm³)</label>
-                                            <input type="number" id="nuevoMatSuelta" class="form-control" placeholder="1.25" step="0.01" min="0.1" max="5.0" required>
+                                            <label class="rw-form-label" for="nuevoMatSuelta">Dens. Suelta</label>
+                                            <input type="number" id="nuevoMatSuelta" class="form-control" placeholder="1.25" step="0.01" min="0.1" max="25.0" required>
                                         </div>
                                         <div class="col-6 col-md-3">
-                                            <label class="rw-form-label" for="nuevoMatComp">Dens. Comp. (g/cm³)</label>
-                                            <input type="number" id="nuevoMatComp" class="form-control" placeholder="1.45" step="0.01" min="0.1" max="5.0" required>
+                                            <label class="rw-form-label" for="nuevoMatComp">Dens. Comp.</label>
+                                            <input type="number" id="nuevoMatComp" class="form-control" placeholder="1.45" step="0.01" min="0.1" max="25.0" required>
                                         </div>
                                         <div class="col-12 col-md-8">
                                             <label class="rw-form-label" for="nuevoMatUso">Descripción o Tipo de Carga</label>
-                                            <input type="text" id="nuevoMatUso" class="form-control" placeholder="Ej. Carga industrial o agroindustrial" required maxlength="60">
+                                            <input type="text" id="nuevoMatUso" class="form-control" placeholder="Ej. Carga industrial o agroindustrial" required maxlength="120">
                                         </div>
                                         <div class="col-12 col-md-4 d-flex align-items-end">
                                             <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold">
-                                                <i class="bi bi-plus-lg me-1"></i> Añadir Material
+                                                <i class="bi bi-plus-lg me-1"></i> Guardar Material
                                             </button>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                         </div>
+
+                        <div class="alert alert-light border small text-muted d-none" id="avisoPermisoMaterial">
+                            <i class="bi bi-info-circle me-1 text-success"></i>
+                            Solo los perfiles de <strong>Administrador</strong> o <strong>Supervisor</strong> pueden registrar nuevos materiales en el catálogo.
+                        </div>
                     </div>
 
-                    <!-- Columna Derecha: Modificar Dimensiones del Contenedor -->
-                    <div class="col-12 col-xl-5">
-                        <div class="rw-card h-100">
-                            <div class="rw-card-header">
-                                <h2 class="rw-card-title"><i class="bi bi-rulers me-2 text-success"></i>Dimensiones del Contenedor (Vagón a Escala)</h2>
+                    <!-- Columna Derecha: Contenedores Registrados + Alta solo para Admin -->
+                    <div class="col-12 col-xl-6">
+                        <div class="rw-card mb-4">
+                            <div class="rw-card-header d-flex justify-content-between align-items-center">
+                                <h2 class="rw-card-title"><i class="bi bi-box-seam me-2 text-success"></i>Contenedores Registrados</h2>
+                                <span class="badge bg-light text-secondary border">Catálogo Oficial</span>
+                            </div>
+                            <div class="rw-card-body">
+                                <div class="table-responsive">
+                                    <table class="table rw-clean-table align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Vagón / Estación</th>
+                                                <th>Geometría (cm)</th>
+                                                <th>Cap. Útil</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaContenedoresBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulario Alta de Contenedor (SOLO Administrador de Estación) -->
+                        <div class="rw-card d-none" id="cardNuevoContenedor">
+                            <div class="rw-card-header d-flex justify-content-between align-items-center">
+                                <h2 class="rw-card-title"><i class="bi bi-rulers me-2 text-success"></i>Registrar Nuevo Contenedor</h2>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Exclusivo Admin</span>
                             </div>
                             <div class="rw-card-body">
                                 <p class="text-muted small mb-3">
-                                    Ajusta aquí las medidas internas reales de tu maqueta tipo vagón ferroviario. Al guardar los cambios, todos los cálculos de volumen y las alturas de los 5 sensores se actualizarán automáticamente:
+                                    Registra un nuevo contenedor para tu estación. Los empleados podrán seleccionarlo directamente en el panel de cálculo sin modificar sus medidas.
                                 </p>
 
-                                <form id="formDimensionesContenedor" autocomplete="off">
+                                <form id="formNuevoContenedor" autocomplete="off">
                                     <div class="mb-3">
                                         <label class="rw-form-label" for="inputCodigoVagon">Identificador del Contenedor / Vagón</label>
-                                        <input type="text" id="inputCodigoVagon" class="form-control" value="Vagón #937620" required maxlength="25">
+                                        <input type="text" id="inputCodigoVagon" class="form-control" placeholder="Ej. Vagón #937625" required maxlength="35">
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="rw-form-label" for="inputLargo">Largo Interno Longitudinal (cm)</label>
-                                        <div class="input-group">
-                                            <input type="number" id="inputLargo" class="form-control" value="75.0" step="0.5" min="15" max="300" required>
-                                            <span class="input-group-text">cm</span>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="rw-form-label" for="inputLargoBase">Largo Base (cm)</label>
+                                            <input type="number" id="inputLargoBase" class="form-control" value="46.0" step="0.1" min="5" max="2000" required>
                                         </div>
-                                        <small class="text-muted">Eje donde van montados los 5 sensores en fila.</small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="rw-form-label" for="inputAncho">Ancho Interno Transversal (cm)</label>
-                                        <div class="input-group">
-                                            <input type="number" id="inputAncho" class="form-control" value="20.0" step="0.5" min="10" max="200" required>
-                                            <span class="input-group-text">cm</span>
+                                        <div class="col-6">
+                                            <label class="rw-form-label" for="inputAnchoBase">Ancho Base (cm)</label>
+                                            <input type="number" id="inputAnchoBase" class="form-control" value="24.0" step="0.1" min="5" max="500" required>
                                         </div>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="rw-form-label" for="inputAlto">Altura Interna Total (cm)</label>
-                                        <div class="input-group">
-                                            <input type="number" id="inputAlto" class="form-control" value="25.0" step="0.5" min="10" max="200" required>
-                                            <span class="input-group-text">cm</span>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="rw-form-label" for="inputLargoSup">Largo a Nivel Útil (cm)</label>
+                                            <input type="number" id="inputLargoSup" class="form-control" value="46.5" step="0.1" min="5" max="2000" required>
                                         </div>
-                                        <small class="text-muted">Distancia desde el fondo del vagón hasta los sensores.</small>
+                                        <div class="col-6">
+                                            <label class="rw-form-label" for="inputAnchoSup">Ancho a Nivel Útil (cm)</label>
+                                            <input type="number" id="inputAnchoSup" class="form-control" value="25.0" step="0.1" min="5" max="500" required>
+                                        </div>
                                     </div>
 
-                                    <div class="p-3 rounded bg-light border mb-4">
-                                        <div class="d-flex justify-content-between small mb-1">
-                                            <span class="text-muted">Área de la Base:</span>
-                                            <strong id="specAreaBase">1,500 cm²</strong>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-4">
+                                            <label class="rw-form-label" for="inputAltoUtil">Llenado Máx. (cm)</label>
+                                            <input type="number" id="inputAltoUtil" class="form-control" value="11.0" step="0.1" min="2" max="500" required>
                                         </div>
-                                        <div class="d-flex justify-content-between small mb-1">
-                                            <span class="text-muted">Capacidad Volumétrica Total:</span>
-                                            <strong id="specCapacidadTotal">37,500 cm³</strong>
+                                        <div class="col-4">
+                                            <label class="rw-form-label" for="inputAltoSensor">Alto a Sensores</label>
+                                            <input type="number" id="inputAltoSensor" class="form-control" value="15.5" step="0.1" min="4" max="600" required>
                                         </div>
-                                        <div class="d-flex justify-content-between small">
-                                            <span class="text-muted">Separación sugerida entre sensores:</span>
-                                            <strong class="text-success" id="specSeparacionSensores">15.0 cm</strong>
+                                        <div class="col-4">
+                                            <label class="rw-form-label" for="inputFactorCal">Factor Calib.</label>
+                                            <input type="number" id="inputFactorCal" class="form-control" value="1.000" step="0.005" min="0.500" max="1.500" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 rounded bg-light border mb-3 small">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted">Área Base / Área a Nivel Útil:</span>
+                                            <strong><span id="specAreaBase">1,104</span> / <span id="specAreaSup">1,163</span> cm²</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted">Capacidad Volumétrica Útil:</span>
+                                            <strong class="text-success" id="specCapacidadTotal">12,465 cm³</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Margen libre bajo sensores (mín. 2 cm):</span>
+                                            <strong id="specMargenSensor">4.5 cm</strong>
                                         </div>
                                     </div>
 
                                     <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold">
-                                        <i class="bi bi-check2-circle me-1"></i> Aplicar Dimensiones al Sistema
+                                        <i class="bi bi-plus-circle me-1"></i> Registrar Contenedor en BD
                                     </button>
                                 </form>
                             </div>
+                        </div>
+
+                        <div class="alert alert-light border small text-muted d-none" id="avisoPermisoContenedor">
+                            <i class="bi bi-lock-fill me-1 text-success"></i>
+                            Solo el <strong>Administrador de Estación</strong> puede registrar o desactivar contenedores. Puedes seleccionar cualquier contenedor activo desde <strong>Cálculo y Sensores</strong>.
                         </div>
                     </div>
                 </div>
@@ -541,22 +666,19 @@
                             </div>
                             <div class="rw-card-body">
                                 <p class="text-muted small">
-                                    Parámetros de comunicación para la recepción de las 5 lecturas ultrasónicas mediante red Wi-Fi local:
+                                    El microcontrolador ESP32 envía las 5 distancias ultrasónicas por HTTPS hacia la función segura de la base de datos:
                                 </p>
                                 <div class="mb-3">
-                                    <label class="rw-form-label" for="inputEspIp">Dirección del Nodo ESP32 (Endpoint HTTP)</label>
-                                    <input type="url" id="inputEspIp" class="form-control" value="http://192.168.1.100/api/sensores">
+                                    <label class="rw-form-label" for="inputEspEndpoint">Endpoint HTTPS (RPC Supabase)</label>
+                                    <input type="text" id="inputEspEndpoint" class="form-control bg-light small" readonly>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="rw-form-label" for="selectBarrido">Modo de Disparo Secuencial</label>
-                                    <select id="selectBarrido" class="form-select">
-                                        <option selected>Barrido secuencial con pausa de 50 ms entre sensores</option>
-                                        <option>Lectura bajo demanda del operador</option>
-                                    </select>
+                                    <label class="rw-form-label">Modo de Adquisición Configurado</label>
+                                    <input type="text" class="form-control bg-light" value="Barrido secuencial (50 ms entre sensores) + Filtro de mediana" readonly>
                                 </div>
                                 <div class="p-3 rounded bg-light border small">
-                                    <span class="fw-bold d-block text-dark mb-1">Trama de datos esperada del circuito:</span>
-                                    <code class="text-success">{"vagon": "937620", "d1": 13.0, "d2": 10.5, "d3": 8.0, "d4": 11.0, "d5": 13.5}</code>
+                                    <span class="fw-bold d-block text-dark mb-1">Trama JSON esperada por el servidor:</span>
+                                    <code class="text-success">{"p_token": "CLAVE_ESP32", "p_d1": 11.5, "p_d2": 9.8, "p_d3": 8.2, "p_d4": 10.0, "p_d5": 11.7}</code>
                                 </div>
                             </div>
                         </div>
@@ -569,24 +691,28 @@
                             </div>
                             <div class="rw-card-body">
                                 <p class="text-muted small">
-                                    Configuración del servicio de almacenamiento y medidas de protección activa en la plataforma web:
+                                    Estado en tiempo real de la plataforma y controles activos de protección en la base de datos:
                                 </p>
                                 <ul class="list-group list-group-flush mb-3">
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <span class="text-muted">Estado de la Base de Datos:</span>
-                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Modo Local (Lista para conectar)</span>
+                                        <span class="text-muted">Base de Datos en la Nube:</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle" id="badgeEstadoBD">Conectado (PostgreSQL)</span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <span class="text-muted">Protocolo de Transporte:</span>
-                                        <strong>HTTPS / TLS Cifrado</strong>
+                                        <span class="text-muted">Canal Tiempo Real (ESP32):</span>
+                                        <span class="badge bg-light text-dark border" id="badgeRealtimeStatus">Inicializando...</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <span class="text-muted">Última lectura recibida:</span>
+                                        <strong id="lblUltimaConexionEsp">--</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <span class="text-muted">Control de Accesos y RLS:</span>
+                                        <strong>Activo por Rol y Estación</strong>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                         <span class="text-muted">Autenticación del Nodo IoT:</span>
-                                        <strong>Token de API Verificado</strong>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <span class="text-muted">Protección de Formularios:</span>
-                                        <strong>Sanitización contra inyección activa</strong>
+                                        <strong>Token Verificado (SHA-256)</strong>
                                     </li>
                                 </ul>
                             </div>
@@ -596,7 +722,7 @@
             </section>
 
             <!-- =================================================================
-                 PESTAÑA 5: PERFIL DEL OPERADOR AUTENTICADO (SEGURO)
+                 PESTAÑA 5: PERFIL DEL OPERADOR AUTENTICADO Y CAMBIO DE CONTRASEÑA
                  ================================================================= -->
             <section class="rw-tab-pane" id="tab-perfil">
                 <div class="row g-4 justify-content-center">
@@ -607,26 +733,30 @@
                                 <span class="badge bg-success"><i class="bi bi-lock-fill me-1"></i>Sesión Autenticada</span>
                             </div>
                             <div class="rw-card-body text-center py-4">
-                                <div class="rw-profile-circle mx-auto mb-3" id="profileBigAvatar">CV</div>
-                                <h3 class="fs-5 fw-bold mb-1" id="profileName">Carlos Alfredo Vázquez Morales</h3>
-                                <p class="text-success fw-semibold small mb-3" id="profileRole">Supervisor de Calidad y Monitoreo</p>
+                                <div class="rw-profile-circle mx-auto mb-3" id="profileBigAvatar">--</div>
+                                <h3 class="fs-5 fw-bold mb-1" id="profileName">--</h3>
+                                <p class="text-success fw-semibold small mb-3" id="profileRole">--</p>
 
                                 <div class="text-start border-top pt-3 mt-3">
                                     <div class="d-flex justify-content-between py-2 border-bottom">
                                         <span class="text-muted">Usuario de Red:</span>
-                                        <strong id="profileUsername">cvazquez</strong>
+                                        <strong id="profileUsername">--</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between py-2 border-bottom">
+                                        <span class="text-muted">Correo Registrado:</span>
+                                        <strong id="profileEmail">--</strong>
                                     </div>
                                     <div class="d-flex justify-content-between py-2 border-bottom">
                                         <span class="text-muted">Estación Asignada:</span>
-                                        <strong id="profileStation">Estación Macuspana (El Suspiro)</strong>
+                                        <strong id="profileStation">--</strong>
                                     </div>
                                     <div class="d-flex justify-content-between py-2 border-bottom">
-                                        <span class="text-muted">Tramo Operativo:</span>
-                                        <strong>Línea FA • Corredor Interoceánico</strong>
+                                        <span class="text-muted">Ubicación / Línea:</span>
+                                        <strong id="profileMunicipio">--</strong>
                                     </div>
                                     <div class="d-flex justify-content-between py-2 border-bottom">
                                         <span class="text-muted">Inicio de Sesión Actual:</span>
-                                        <strong id="profileLoginTime">--:--</strong>
+                                        <strong id="profileLoginTime">--</strong>
                                     </div>
                                 </div>
 
@@ -638,6 +768,34 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Tarjeta para Cambiar Contraseña -->
+                    <div class="col-12 col-lg-5">
+                        <div class="rw-card">
+                            <div class="rw-card-header">
+                                <h2 class="rw-card-title"><i class="bi bi-key-fill me-2 text-success"></i>Seguridad: Cambiar Contraseña</h2>
+                            </div>
+                            <div class="rw-card-body">
+                                <p class="text-muted small mb-3">
+                                    Actualiza tu contraseña de acceso. Debe contener al menos 8 caracteres.
+                                </p>
+                                <div id="perfilPassAlert" class="alert py-2 small d-none" role="alert"></div>
+                                <form id="formCambiarPassword" autocomplete="off">
+                                    <div class="mb-3">
+                                        <label class="rw-form-label" for="perfilNewPass">Nueva Contraseña</label>
+                                        <input type="password" id="perfilNewPass" class="form-control" minlength="8" maxlength="60" placeholder="Mínimo 8 caracteres" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="rw-form-label" for="perfilConfirmPass">Confirmar Nueva Contraseña</label>
+                                        <input type="password" id="perfilConfirmPass" class="form-control" minlength="8" maxlength="60" placeholder="Repite la contraseña" required>
+                                    </div>
+                                    <button type="submit" class="btn rw-btn-green w-100 py-2 fw-semibold">
+                                        <i class="bi bi-shield-check me-2"></i>Actualizar Contraseña
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -646,9 +804,10 @@
 
 </div>
 
-<!-- Librerías JS -->
+<!-- Librerías JS: Bootstrap, Chart.js y Supabase Client v2 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>
